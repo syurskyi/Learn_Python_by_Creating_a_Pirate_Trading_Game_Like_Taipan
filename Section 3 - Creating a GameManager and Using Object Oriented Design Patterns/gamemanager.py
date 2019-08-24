@@ -6,16 +6,18 @@ from city import City
 
 MENU_DIVIDER = "-------------------------------------"
 GAME_TITLE = "Python Pirate Trader 0.1A"
+PRESS_ANY_KEY = "Press any key to continue"
 
 
 class GameManager(object):
-    def __init__(self, **args):
-        self.firm_name = args['name']
-        self.cash = args['cash']
-        self.debt = args['debt']
-        self.cannons = args[3]
+    def __init__(self, **kwargs):
+        self.firm_name = kwargs['name']
+        self.cash = kwargs['cash']
+        self.debt = kwargs['debt']
+        self.cannons = kwargs['cannons']
         self.bank = 0
-        self.shiphold = args[4]
+        self.maxshiphold = kwargs['shiphold']
+        self.currentshiphold = 0
         Product.create_products()
         City.create_cities()
         self.current_city = City.cities[0]
@@ -31,17 +33,48 @@ class GameManager(object):
         return city_list[int(select_city) - 1], current_date
 
     def buy(self):
-        input("What do you want to buy?")
+        buy_select = input("Which Product do you want to buy (1 - %s) - C)ancel :" % str(len(Product.products)))
+        if buy_select == "C":
+            return
+        product_to_buy = Product.products[int(buy_select)-1]
+        qty_to_buy = input("How many %s do you wish to buy?" % product_to_buy.name)
+        cost_to_buy = product_to_buy.price * int(qty_to_buy)
+        print(cost_to_buy)
+        if cost_to_buy <= self.cash:
+            if self.currentshiphold + int(qty_to_buy) <= self.maxshiphold:
+                self.cash -= cost_to_buy
+                product_to_buy.shipqty += int(qty_to_buy)
+                self.currentshiphold += int(qty_to_buy)
+            else:
+                print("There is not enough space to  hold items")
+                input(PRESS_ANY_KEY)
+        else:
+            print("Sorry, You don't have enough money.")
+            input("continue...")
 
     def sell(self):
-        input("What do you want to sell?")
+        sell_select = input("Which Product do you want to buy (1 - %s) - C)ancel :" % str(len(Product.products)))
+        if sell_select == "C":
+            return
+        product_to_sell = Product.products[int(sell_select) - 1]
+        qty_to_sell = input("How many %s do you wish to sell?" % product_to_sell.name)
+        if int(qty_to_sell) <= product_to_sell.shipqty:
+            self.cash += int(qty_to_sell) * product_to_sell.price
+            product_to_sell.shipqty -= int(qty_to_sell)
+            self.currentshiphold -= int(qty_to_sell)
+        else:
+            print("You don't have that many to sell")
+            input(PRESS_ANY_KEY)
 
     def visit_bank(self):
         input("How much to transfer to the bank?: ")
 
     def display_products(self):
+        i = 1
         for product in Product.products:
-            print(product.name + " -- " + str(product.price))
+            print(str(i) + ")" + product.name + " -- " + str(product.price) + "---" + str(product.shipqty))
+            i += 1
+
 
     def StartUp(self):
 

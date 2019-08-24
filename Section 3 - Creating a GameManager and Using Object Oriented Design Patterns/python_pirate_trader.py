@@ -17,7 +17,7 @@ def get_firm_name():
 def get_starting_options():
     starting_options = "1"
     if starting_options == "1":
-        opts = (250, 250, 0)
+        opts = (2500, 250, 0)
     else:
         opts = (0, 0, 5)
     return opts
@@ -31,7 +31,8 @@ welcome_message()
 firm_name = get_firm_name()
 
 cash, debt, cannons = get_starting_options()
-game = GameManager(firm_name, cash, debt, cannons, 100)
+
+game = GameManager(shiphold=100, name=firm_name, cash=cash, debt=debt, cannons=cannons)
 
 # Start up Game
 game.StartUp()
